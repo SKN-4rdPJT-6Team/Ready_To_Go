@@ -1,0 +1,47 @@
+# Core Django
+Django==5.0.1
+djangorestframework==3.15.1
+django-cors-headers==4.3.1
+python-dotenv==1.0.0
+
+# Database
+mysqlclient==2.2.4
+# OR PyMySQL if mysqlclient has issues
+# PyMySQL==1.1.0
+
+# OpenAI & LangChain
+openai==1.12.0
+langchain==0.1.9
+langchain-openai==0.0.6
+langchain-community==0.0.21
+langchain-core==0.1.23
+langchain-chroma==0.1.0
+langchain-text-splitters==0.0.1
+
+# Google AI
+google-generativeai==0.3.2
+
+# Embeddings
+tiktoken==0.5.2
+
+# Vector Store
+chromadb==0.4.22
+
+# Deep Learning
+torch==2.2.0
+transformers==4.37.2
+sentencepiece==0.1.99
+
+# Translation
+deep-translator==1.11.4
+
+# Document Processing
+PyMuPDF==1.23.18
+
+# Production
+gunicorn==21.2.0
+whitenoise==6.6.0
+
+# Dev tools
+pytest==8.0.0
+pytest-django==4.8.0
