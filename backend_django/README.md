@@ -1,14 +1,9 @@
-# Django Backend - Ready To Go Travel Assistant
+# Ready To Go Travel Assistant
 
 Django REST Framework 기반의 여행 정보 AI 어시스턴트 백엔드입니다.
 
-## 주요 기능
-
-- **AI 채팅**: OpenAI GPT, Google Gemini, Fine-tuned Flan-T5 모델 지원
-- **RAG 시스템**: ChromaDB 기반 벡터 검색 및 문서 참조
-- **다국어 지원**: 한국어-영어 자동 번역
-- **문서 관리**: PDF 문서 처리 및 벡터화
-- **국가별 정보**: 비자, 보험, 이민 정보 제공
+###  핵심 기능 : **RAG 기반 AI 채팅**
+**ChromaDB 기반 벡터 검색 및 문서 참조하여 OpenAI GPT, Google Gemini, Fine-tuned 모델 응답 지원**
 
 ## 프로젝트 구조 (간결화됨)
 
@@ -68,13 +63,13 @@ python manage.py runserver
 
 ## API 엔드포인트
 
-### 기본 정보
+### 기본 정보(core)
 - `GET /api/` - 앱 정보
 - `GET /api/health/` - 헬스 체크
 - `GET /api/countries/` - 지원 국가 목록
 - `GET /api/topics/` - 지원 주제 목록
 
-### 채팅
+### 채팅(chat)
 - `POST /api/chat/conversation/` - 새 대화 세션 생성
 - `POST /api/chat/message/` - 메시지 전송
 - `GET /api/chat/history/<conversation_id>/` - 대화 기록 조회
@@ -82,7 +77,7 @@ python manage.py runserver
 - `GET /api/chat/sources/` - 문서 출처
 - `GET /api/chat/settings/models/` - 사용 가능한 모델
 
-### 문서
+### 문서(documnet, 현재는 사용 안함)
 - `GET /api/documents/` - 문서 목록
 - `GET /api/documents/<document_id>/` - 문서 상세
 - `POST /api/documents/upload/` - 문서 업로드
@@ -108,6 +103,7 @@ GOOGLE_API_KEY=your-google-api-key
 
 # 벡터 DB
 VECTOR_DB_PATH=data/vectors
+...
 ```
 
 ## 데이터베이스 모델
@@ -127,21 +123,6 @@ VECTOR_DB_PATH=data/vectors
 ### FAQ
 - 자주 묻는 질문
 - 국가/주제별 분류
-
-## 기존 FastAPI에서 마이그레이션
-
-기존 FastAPI 프로젝트의 데이터를 Django로 마이그레이션하려면:
-
-```bash
-# 데이터 복사
-python copy_data.py
-
-# FastAPI DB에서 마이그레이션 (선택사항)
-python manage.py migrate_from_fastapi --source-db mysql://user:pass@host/db
-
-# PDF 인덱싱
-python manage.py index_pdfs --pdf-dir data/pdfs
-```
 
 ## 개발 도구
 
@@ -186,24 +167,3 @@ STATIC_ROOT = '/path/to/static/'
 ```bash
 gunicorn config.wsgi:application --bind 0.0.0.0:8000
 ```
-
-## 주요 개선사항 (FastAPI 대비)
-
-1. **더 간단한 구조**: 
-   - Services와 Views 분리 없이 통합된 구조
-   - 파일 수 감소로 더 직관적
-2. **관리 인터페이스**: Django Admin으로 데이터 관리
-3. **ORM**: Django ORM으로 더 직관적인 데이터베이스 조작
-4. **미들웨어**: CORS, 보안 등 기본 제공
-5. **테스트**: Django 테스트 프레임워크 활용
-6. **배포**: 더 성숙한 배포 생태계
-
-## 아키텍처 원칙
-
-- **단순성**: 복잡한 레이어 분리 없이 필요한 기능만 구현
-- **직관성**: Django의 관례를 따라 이해하기 쉬운 구조
-- **유지보수성**: 적은 파일 수로 관리 부담 감소
-
-## 라이센스
-
-MIT License
