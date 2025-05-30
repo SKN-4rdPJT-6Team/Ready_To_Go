@@ -139,10 +139,3 @@ python manage.py flush
 ```
 
 ## 배포
-
-```
-
-### Gunicorn으로 실행
-```bash
-gunicorn config.wsgi:application --bind 0.0.0.0:8000
-```
