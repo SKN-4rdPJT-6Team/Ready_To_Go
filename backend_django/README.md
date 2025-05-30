@@ -26,9 +26,7 @@ backend_django/
 
 ### 1. 가상환경 설정
 ```bash
-python -m venv venv
-source venv/bin/activate  # Linux/Mac
-# venv\Scripts\activate   # Windows
+conda activate 4rdPJT_env
 ```
 
 ### 2. 의존성 설치
@@ -36,54 +34,7 @@ source venv/bin/activate  # Linux/Mac
 pip install -r requirements.txt
 ```
 
-### 3. 환경 변수 설정
-```bash
-cp .env.example .env
-# .env 파일을 편집하여 API 키와 데이터베이스 정보 입력
-```
-
-### 4. 데이터베이스 설정
-```bash
-# MySQL 데이터베이스 생성
-mysql -u root -p
-CREATE DATABASE RTG_V2 CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-```
-
-### 5. 빠른 시작
-```bash
-python quickstart.py
-```
-
-또는 수동으로:
-```bash
-python manage.py makemigrations
-python manage.py migrate
-python manage.py runserver
-```
-
-## API 엔드포인트
-
-### 기본 정보(core)
-- `GET /api/` - 앱 정보
-- `GET /api/health/` - 헬스 체크
-- `GET /api/countries/` - 지원 국가 목록
-- `GET /api/topics/` - 지원 주제 목록
-
-### 채팅(chat)
-- `POST /api/chat/conversation/` - 새 대화 세션 생성
-- `POST /api/chat/message/` - 메시지 전송
-- `GET /api/chat/history/<conversation_id>/` - 대화 기록 조회
-- `GET /api/chat/examples/` - 예시 질문
-- `GET /api/chat/sources/` - 문서 출처
-- `GET /api/chat/settings/models/` - 사용 가능한 모델
-
-### 문서(documnet, 현재는 사용 안함)
-- `GET /api/documents/` - 문서 목록
-- `GET /api/documents/<document_id>/` - 문서 상세
-- `POST /api/documents/upload/` - 문서 업로드
-- `DELETE /api/documents/<document_id>/delete/` - 문서 삭제
-
-## 환경 변수
+###  3. 환경 변수 설정
 
 ```env
 # Django 설정
@@ -105,6 +56,42 @@ GOOGLE_API_KEY=your-google-api-key
 VECTOR_DB_PATH=data/vectors
 ...
 ```
+### 4. 데이터베이스 설정
+```bash
+# MySQL 데이터베이스 생성
+mysql -u root -p
+CREATE DATABASE RTG_V2 CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+```
+
+### 5. 서비스 기동
+
+```bash
+python manage.py makemigrations
+python manage.py migrate
+python manage.py runserver
+```
+
+## API 엔드포인트
+
+### 기본 정보(core)
+- `GET /api/` - 앱 정보
+- `GET /api/health/` - 헬스 체크
+- `GET /api/countries/` - 국가 목록
+- `GET /api/topics/` - 주제 목록
+
+### 채팅(chat)
+- `POST /api/chat/conversation/` - 새 대화 세션 생성
+- `POST /api/chat/message/` - 메시지 전송
+- `GET /api/chat/history/<conversation_id>/` - 대화 기록 조회
+- `GET /api/chat/examples/` - 예시 질문
+- `GET /api/chat/sources/` - 문서 출처
+- `GET /api/chat/settings/models/` - 사용 가능한 모델
+
+### 문서(documnet, 현재는 사용 안함)
+- `GET /api/documents/` - 문서 목록
+- `GET /api/documents/<document_id>/` - 문서 상세
+- `POST /api/documents/upload/` - 문서 업로드
+- `DELETE /api/documents/<document_id>/delete/` - 문서 삭제
 
 ## 데이터베이스 모델
 
@@ -153,14 +140,6 @@ python manage.py flush
 
 ## 배포
 
-### 프로덕션 설정
-```python
-# config/settings.py
-DEBUG = False
-ALLOWED_HOSTS = ['your-domain.com']
-
-# Static files
-STATIC_ROOT = '/path/to/static/'
 ```
 
 ### Gunicorn으로 실행
