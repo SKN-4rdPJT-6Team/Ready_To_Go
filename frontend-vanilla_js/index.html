@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ready To Go - 여행 정보 챗봇</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="css/style.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            DEFAULT: 'hsl(199, 89%, 48%)',
+                            foreground: 'hsl(0, 0%, 100%)'
+                        },
+                        secondary: {
+                            DEFAULT: 'hsl(12, 60%, 65%)',
+                            foreground: 'hsl(0, 0%, 100%)'
+                        },
+                        accent: {
+                            DEFAULT: 'hsl(165, 60%, 50%)',
+                            foreground: 'hsl(0, 0%, 100%)'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="min-h-screen bg-gradient-to-b from-gray-50 to-white text-gray-800">
+    <div id="app" class="min-h-screen flex flex-row">
+        <!-- 사이드바 -->
+        <aside id="sidebar" class="w-72 bg-gray-50 border-r border-gray-200 flex flex-col px-6 py-6 gap-4 shadow-sm">
+            <div class="flex items-center gap-3 mb-3">
+                <img src="assets/mascot.png" alt="마스코트" class="w-10 h-10" onerror="this.style.display='none'">
+                <span class="text-2xl font-bold text-gray-800 tracking-wide">Ready <span class="bg-gradient-to-r from-primary via-accent to-secondary bg-clip-text text-transparent">To Go</span></span>
+            </div>
+            
+            <div class="flex flex-col gap-2 mb-2">
+                <label class="text-sm text-gray-700 font-bold mt-2" for="country">국가</label>
+                <div class="relative">
+                    <select id="country" class="w-full p-2 pr-10 rounded-md bg-white text-gray-800 border border-gray-300 appearance-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all">
+                        <option value="">국가 선택</option>
+                    </select>
+                    <div class="absolute inset-y-0 right-3 flex items-center pointer-events-none">
+                        <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                        </svg>
+                    </div>
+                </div>
+
+                <label class="text-sm text-gray-700 font-bold mt-2" for="topic">토픽</label>
+                <div class="relative">
+                    <select id="topic" class="w-full p-2 pr-10 rounded-md bg-white text-gray-800 border border-gray-300 appearance-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all">
+                        <option value="">토픽 선택</option>
+                    </select>
+                    <div class="absolute inset-y-0 right-3 flex items-center pointer-events-none">
+                        <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                        </svg>
+                    </div>
+                </div>
+
+                <label class="text-sm text-gray-700 font-bold mt-2" for="model">LLM 모델</label>
+                <div class="relative">
+                    <select id="model" class="w-full p-2 pr-10 rounded-md bg-white text-gray-800 border border-gray-300 appearance-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all">
+                        <option value="">모델 선택</option>
+                    </select>
+                    <div class="absolute inset-y-0 right-3 flex items-center pointer-events-none">
+                        <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <button id="newChatBtn" class="bg-primary text-primary-foreground py-2 rounded-lg font-bold mb-2 transition-all shadow-md hover:shadow-lg transform hover:scale-105 hover:bg-primary/90">+ 새 대화</button>
+            
+            <nav class="flex flex-col gap-2 mt-2">
+                <span class="text-xs text-gray-600 mb-1">대화 리스트</span>
+                <div id="chatList">
+                    <span class="text-gray-400 text-sm">대화가 없습니다</span>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- 메인 컨텐츠 -->
+        <main id="mainContent" class="flex-1 flex flex-col items-center justify-center py-8 px-4 min-h-screen transition-all duration-300">
+            <div id="contentContainer" class="w-full max-w-4xl flex flex-col gap-8">
+                <!-- FAQ 카드 영역 -->
+                <section id="faqSection" class="w-full max-w-4xl mx-auto hidden">
+                    <div class="flex items-center text-lg font-bold text-gray-800 mb-2">
+                        <span class="mr-2">✔️ 자주 하는 질문</span>
+                    </div>
+                    <div class="relative -mx-4 px-4">
+                        <div id="faqCards" class="flex gap-4 overflow-x-auto pb-2 pt-2 px-4 -mx-4 custom-scroll-hide">
+                            <!-- FAQ 카드들이 여기에 동적으로 추가됩니다 -->
+                        </div>
+                    </div>
+                    <div id="sourcesInfo" class="mt-3 flex justify-end px-4 hidden">
+                        <div class="text-xs text-gray-600 flex items-center gap-1">
+                            <svg class="w-3 h-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            <span class="text-gray-500">참고: </span>
+                            <button id="sourcesBtn" class="text-blue-600 hover:text-blue-800 underline">
+                                <span id="sourcesCount">0</span>개 문서
+                            </button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 채팅 영역 -->
+                <section id="chatArea" class="w-full flex-1 flex flex-col gap-2 overflow-y-auto bg-white/10 backdrop-blur-md rounded-xl p-6 border border-gray-200 transition-all duration-300 shadow-lg opacity-50 min-h-[300px] max-h-[350px]">
+                    <div id="chatMessages">
+                        <div id="emptyState" class="text-center text-gray-500 py-16">
+                            <p class="text-lg font-medium mb-2">대화를 시작하려면</p>
+                            <p class="text-sm">'새 대화' 버튼을 클릭하세요</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 입력 영역 -->
+                <form id="chatForm" class="w-full flex items-center gap-2 bg-white/10 backdrop-blur-md rounded-2xl shadow-lg px-6 py-4 border border-gray-200 transition-all duration-300 opacity-50">
+                    <input
+                        type="text"
+                        id="messageInput"
+                        class="flex-1 bg-transparent border-none outline-none text-gray-800 placeholder:text-gray-500 px-2 focus:ring-0"
+                        placeholder="새 대화 시작 버튼을 눌러주세요"
+                        disabled
+                    />
+                    <button 
+                        type="submit" 
+                        id="sendBtn"
+                        disabled 
+                        class="ml-2 px-5 py-2 rounded-xl font-semibold bg-primary hover:bg-primary/90 text-primary-foreground transition-all opacity-60 cursor-not-allowed"
+                    >
+                        전송
+                    </button>
+                </form>
+            </div>
+
+            <!-- 하단 메시지 -->
+            <p class="text-xs text-gray-500 text-center w-full max-w-4xl mt-8">Ready To Go 마스코트가 함께 답변을 도와드려요!</p>
+        </main>
+    </div>
+
+    <!-- 소스 모달 -->
+    <div id="sourcesModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 hidden">
+        <div class="bg-white rounded-lg max-w-md w-full p-6 shadow-xl transform transition-all">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-bold text-gray-800">참고 문서</h3>
+                <button id="closeSourcesModal" class="text-gray-400 hover:text-gray-600">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            <div id="sourcesList" class="space-y-2 max-h-96 overflow-y-auto">
+                <!-- 소스 목록이 여기에 동적으로 추가됩니다 -->
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript 파일들 -->
+    <script src="js/api.js"></script>
+    <script type="module" src="js/app.js"></script>
+</body>
+</html>

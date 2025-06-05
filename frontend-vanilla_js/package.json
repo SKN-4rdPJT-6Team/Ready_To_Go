@@ -1,0 +1,34 @@
+{
+  "name": "ready-to-go-vanilla",
+  "version": "1.0.0",
+  "description": "Ready To Go 여행 정보 챗봇 - 바닐라 JavaScript 버전",
+  "main": "index.html",
+  "scripts": {
+    "start": "python -m http.server 8080",
+    "serve": "npx serve . -p 8080",
+    "dev": "python -m http.server 8080"
+  },
+  "keywords": [
+    "travel",
+    "chatbot",
+    "vanilla-javascript",
+    "ai",
+    "django",
+    "tailwindcss"
+  ],
+  "author": "Ready To Go Team",
+  "license": "MIT",
+  "devDependencies": {
+    "serve": "^14.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-repo/ready-to-go-vanilla.git"
+  },
+  "homepage": ".",
+  "browserslist": [
+    "> 1%",
+    "last 2 versions",
+    "not dead"
+  ]
+}

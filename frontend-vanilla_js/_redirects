@@ -1,0 +1,15 @@
+/* Ready To Go - Netlify 리디렉션 설정 */
+
+# SPA 라우팅을 위한 fallback
+/*    /index.html   200
+
+# API 프록시 설정 (Django 백엔드로)
+/api/*  http://localhost:8000/api/:splat  200
+
+# 보안 헤더
+/*
+  X-Frame-Options: DENY
+  X-XSS-Protection: 1; mode=block
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Content-Security-Policy: default-src 'self' https://cdn.tailwindcss.com; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com; style-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com; img-src 'self' data:; connect-src 'self' http://localhost:8000
