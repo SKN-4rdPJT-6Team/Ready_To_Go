@@ -1,4 +1,4 @@
-from Ready_To_Go.backend_django.core import views
+from core import views
 from django.urls import path
 
 urlpatterns = [

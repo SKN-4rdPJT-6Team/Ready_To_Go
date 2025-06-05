@@ -142,7 +142,7 @@ class RAG:
         )
         
         # 문서 검색
-        docs = retriever.get_relevant_documents(translated_query)
+        docs = retriever.invoke(translated_query)
         
         if not docs:
             return "관련 문서를 찾지 못했습니다.", []

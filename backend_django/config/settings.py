@@ -135,8 +135,10 @@ REST_FRAMEWORK = {
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://localhost:5173",
+    "http://localhost:8080",  # 바닐라 JS 프론트엔드
     "http://127.0.0.1:3000",
     "http://127.0.0.1:5173",
+    "http://127.0.0.1:8080",  # 바닐라 JS 프론트엔드
 ]
 
 CORS_ALLOW_ALL_ORIGINS = DEBUG  # Only in development
@@ -151,14 +153,14 @@ DEFAULT_LLM_MODEL = 'gpt-4'
 GOOGLE_API_KEY = os.getenv('GOOGLE_API_KEY', '')
 
 # Vector DB
-VECTOR_DB_PATH = os.getenv('VECTOR_DB_PATH', str(BASE_DIR / 'data' / 'vectors'))
+VECTOR_DB_PATH = os.getenv('VECTOR_DB_PATH', str(BASE_DIR / 'Ready_To_Go' / 'backend_django' / 'data' / 'vectors'))
 
 # LLM Settings
 MAX_CONTEXT_TOKENS = 3000
 TOP_K_RESULTS = 5
 
 # GPU AI 서버 설정
-GPU_AI_SERVER_URL = "http://your-gpu-server-ip:8001"  # 실제 GPU 서버 IP로 변경
+GPU_AI_SERVER_URL = "https://9c6b-34-168-217-150.ngrok-free.app"  # 실제 GPU 서버 IP로 변경
 
 # Document Processing
 CHUNK_SIZE = 1000
