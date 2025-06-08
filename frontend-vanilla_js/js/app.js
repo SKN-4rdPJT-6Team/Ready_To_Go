@@ -1,224 +1,167 @@
-// 모듈 import
+// 메인 애플리케이션
 import { AppState } from './modules/state.js';
 import { DOMManager } from './modules/dom.js';
+import { APIManager } from './modules/api.js';
 import { ChatManager } from './modules/chat.js';
 import { UIRenderer } from './modules/ui.js';
-import { APIManager } from './modules/api.js';
 
-// 메인 애플리케이션 클래스
 class TravelBotApp {
     constructor() {
-        // 모듈 초기화
         this.state = new AppState();
         this.dom = new DOMManager();
-        this.chat = new ChatManager(this.state, this.dom);
-        this.ui = new UIRenderer(this.state, this.dom);
-        this.api = new APIManager(this.state);
+        this.api = new APIManager();
+        this.chat = new ChatManager(this.state, this.dom, this.api);
+        this.ui = new UIRenderer(this.state, this.dom, this.api);
 
-        this.bindEvents();
-        this.loadInitialData();
+        this.init();
     }
 
-    // 이벤트 바인딩
+    async init() {
+        this.bindEvents();
+        await this.loadInitialData();
+        this.ui.updateInterface();
+    }
+
     bindEvents() {
-        // 셀렉트 박스 이벤트
-        this.dom.elements.countrySelect.addEventListener('change', (e) => {
-            this.handleCountryChange(e.target.value);
+        // 셀렉트 박스
+        this.dom.$.country?.addEventListener('change', (e) => {
+            this.state.set('country', e.target.value);
+            this.state.set('topic', '');
+            this.dom.$.topic.value = '';
+            this.loadExamples();
         });
 
-        this.dom.elements.topicSelect.addEventListener('change', (e) => {
-            this.handleTopicChange(e.target.value);
+        this.dom.$.topic?.addEventListener('change', (e) => {
+            this.state.set('topic', e.target.value);
+            this.loadExamples();
         });
 
-        this.dom.elements.modelSelect.addEventListener('change', (e) => {
-            this.handleModelChange(e.target.value);
+        this.dom.$.model?.addEventListener('change', (e) => {
+            this.state.set('model', e.target.value);
         });
 
-        // 새 대화 버튼
-        this.dom.elements.newChatBtn.addEventListener('click', () => {
-            this.handleNewChat();
+        // 버튼
+        this.dom.$.newChatBtn?.addEventListener('click', async () => {
+            const success = await this.chat.createNew();
+            if (success) {
+                this.ui.renderChatList();
+                this.ui.renderChat();
+                this.ui.updateInterface();
+            }
         });
 
-        // 채팅 폼 제출
-        this.dom.elements.chatForm.addEventListener('submit', (e) => {
+        this.dom.$.sendBtn?.addEventListener('click', (e) => {
             e.preventDefault();
-            this.handleSendMessage();
+            this.sendMessage();
         });
 
-        // 채팅 리스트 클릭 (이벤트 위임)
-        this.dom.elements.chatList.addEventListener('click', (e) => {
-            const chatItem = e.target.closest('.chat-list-item');
-            if (chatItem && chatItem.dataset.chatId) {
-                this.handleChatSelect(parseInt(chatItem.dataset.chatId));
+        this.dom.$.chatForm?.addEventListener('submit', (e) => {
+            e.preventDefault();
+            this.sendMessage();
+        });
+
+        // 채팅 선택
+        this.dom.$.chatList?.addEventListener('click', (e) => {
+            const chatItem = e.target.closest('[data-chat-id]');
+            if (chatItem) {
+                this.chat.select(parseInt(chatItem.dataset.chatId));
+                this.ui.renderChatList();
+                this.ui.renderChat();
+                this.ui.updateInterface();
             }
         });
 
-        // FAQ 카드 클릭 (이벤트 위임)
-        this.dom.elements.faqCards.addEventListener('click', (e) => {
+        // FAQ 클릭
+        this.dom.$.faqCards?.addEventListener('click', (e) => {
             const faqCard = e.target.closest('.faq-card');
-            if (faqCard) {
+            if (faqCard && this.state.activeChat !== null) {
                 const question = faqCard.querySelector('.faq-question').textContent;
-                this.handleFAQClick(question);
+                this.dom.$.messageInput.value = question;
+                this.sendMessage();
             }
         });
 
-        // 소스 모달 관련
-        this.dom.elements.sourcesBtn.addEventListener('click', () => {
+        // 소스 모달
+        this.dom.$.sourcesBtn?.addEventListener('click', () => {
             this.ui.showSourcesModal();
         });
 
-        this.dom.elements.closeSourcesModal.addEventListener('click', () => {
+        this.dom.$.closeSourcesModal?.addEventListener('click', () => {
             this.ui.hideSourcesModal();
         });
 
-        this.dom.elements.sourcesModal.addEventListener('click', (e) => {
-            if (e.target === this.dom.elements.sourcesModal) {
+        this.dom.$.sourcesModal?.addEventListener('click', (e) => {
+            if (e.target === this.dom.$.sourcesModal) {
                 this.ui.hideSourcesModal();
             }
         });
 
-        // 메시지 입력 변화 감지
-        this.dom.elements.messageInput.addEventListener('input', () => {
-            this.ui.updateSendButton();
+        // 입력 변화 감지
+        this.dom.$.messageInput?.addEventListener('input', () => {
+            this.ui.updateInterface();
         });
     }
 
-    // 초기 데이터 로드
     async loadInitialData() {
         try {
-            const { countries, topics, models } = await this.api.loadInitialData();
+            const [countries, topics, models] = await Promise.all([
+                this.api.getCountries(),
+                this.api.getTopics(),
+                this.api.getModels()
+            ]);
 
-            this.ui.renderCountries(countries);
-            this.ui.renderTopics(topics);
-            this.ui.renderModels(models);
-            this.state.setModels(models.available_models || models);
-
-            // 초기 예시 질문 및 소스 로드
-            await this.loadExamplesAndSources();
+            this.ui.renderSelects(countries, topics, models);
+            await this.loadExamples();
 
         } catch (error) {
-            console.error('Failed to load initial data:', error);
+            console.error('초기 데이터 로드 실패:', error);
         }
     }
 
-    // 국가 변경 처리
-    async handleCountryChange(country) {
-        this.state.updateCountry(country);
-        this.dom.elements.topicSelect.value = "";
-        await this.loadExamplesAndSources();
-        await this.updateModelsForCurrentSelection();
-    }
-
-    // 토픽 변경 처리
-    async handleTopicChange(topic) {
-        this.state.updateTopic(topic);
-        await this.loadExamplesAndSources();
-        await this.updateModelsForCurrentSelection();
-    }
-
-    // 현재 선택에 따른 모델 업데이트
-    async updateModelsForCurrentSelection() {
-        if (this.state.country && this.state.topic) {
-            try {
-                const models = await this.api.loadModelsForCountryTopic(
-                    this.state.country,
-                    this.state.topic
-                );
-                
-                this.state.setModels(models);
-                this.ui.renderModels(models);
-                
-                // 현재 선택된 모델이 사용 불가능하면 기본값으로 변경
-                const currentModel = this.state.model;
-                const isCurrentModelAvailable = models.some(model => model.id === currentModel);
-                
-                if (!isCurrentModelAvailable && models.length > 0) {
-                    this.state.updateModel(models[0].id);
-                    this.dom.elements.modelSelect.value = models[0].id;
-                }
-            } catch (error) {
-                console.error('Failed to update models:', error);
-            }
+    async loadExamples() {
+        const { country, topic } = this.state.data;
+        if (!country || !topic) {
+            this.dom.hide(this.dom.$.faqSection);
+            return;
         }
-    }
-
-    // 모델 변경 처리
-    handleModelChange(model) {
-        this.state.updateModel(model);
-    }
-
-    // 예시 질문 및 소스 로드
-    async loadExamplesAndSources() {
-        const { exampleQuestions, documentSources } = await this.api.loadExamplesAndSources(
-            this.state.country, 
-            this.state.topic
-        );
-
-        this.state.setExampleQuestions(exampleQuestions);
-        this.state.setDocumentSources(documentSources);
-        this.ui.renderFAQSection();
-    }
-
-    // 새 대화 시작 처리
-    async handleNewChat() {
-        const newChat = await this.chat.createNewChat();
-        if (newChat) {
-            this.ui.renderChatList();
-            this.ui.renderChatArea();
-            this.ui.enableChatInterface();
-            this.dom.elements.messageInput.value = "";
-            this.ui.updateSendButton();
-        }
-    }
-
-    // 메시지 전송 처리
-    async handleSendMessage() {
-        const text = this.dom.elements.messageInput.value.trim();
-        if (!text) return;
-
-        // UI에 사용자 메시지 추가
-        this.ui.addMessageToChat({ role: "user", text });
-        this.dom.elements.messageInput.value = "";
-        this.ui.updateSendButton();
-        this.dom.scrollToBottom(this.dom.elements.chatArea);
-
-        // 로딩 표시
-        this.ui.addLoadingMessage();
 
         try {
-            const { userMessage, botMessage } = await this.chat.sendMessage(text);
-            
-            this.ui.removeLoadingMessage();
-            this.ui.addMessageToChat(botMessage);
+            const [examples, sources] = await Promise.all([
+                this.api.getExamples(country, topic),
+                this.api.getSources(country, topic)
+            ]);
 
+            this.ui.renderFAQ(examples.examples || [], sources.sources || []);
         } catch (error) {
-            this.ui.removeLoadingMessage();
-            console.error('Message send failed:', error);
-        } finally {
-            this.dom.scrollToBottom(this.dom.elements.chatArea);
-            this.ui.updateSendButton();
+            console.error('예시 로드 실패:', error);
         }
     }
 
-    // 채팅 선택 처리
-    handleChatSelect(chatId) {
-        this.chat.selectChat(chatId);
-        this.ui.renderChatList();
-        this.ui.renderChatArea();
-        this.ui.enableChatInterface();
-        this.dom.elements.messageInput.value = "";
-        this.ui.updateSendButton();
-    }
+    async sendMessage() {
+        const text = this.dom.$.messageInput?.value.trim();
+        if (!text) return;
 
-    // FAQ 클릭 처리
-    handleFAQClick(question) {
-        if (this.state.activeChat === null) return;
-        this.dom.elements.messageInput.value = question;
-        this.handleSendMessage();
+        // 사용자 메시지를 먼저 채팅에 추가
+        const activeChat = this.state.getActiveChat();
+        if (!activeChat) return;
+        
+        activeChat.messages.push({ role: "user", text });
+        
+        this.dom.$.messageInput.value = '';
+        this.ui.renderChat(); // 사용자 메시지 즉시 표시
+        this.ui.showLoading();
+        this.ui.updateInterface();
+
+        const success = await this.chat.sendMessage(text, true); // skipUserMessage 플래그 추가
+        if (success) {
+            this.ui.hideLoading();
+            this.ui.renderChat();
+            this.ui.updateInterface();
+        }
     }
 }
 
-// 애플리케이션 초기화
+// 앱 초기화
 document.addEventListener('DOMContentLoaded', () => {
     window.travelBotApp = new TravelBotApp();
 });

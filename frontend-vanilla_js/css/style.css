@@ -1,6 +1,41 @@
 /* 커스텀 CSS 스타일 */
 
-/* Custom scroll hide */
+/* FAQ 스크롤 영역 개선 */
+.faq-scroll-container {
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(52, 152, 219, 0.3) transparent;
+    padding-bottom: 8px;
+}
+
+.faq-scroll-container::-webkit-scrollbar {
+    height: 8px;
+}
+
+.faq-scroll-container::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 4px;
+}
+
+.faq-scroll-container::-webkit-scrollbar-thumb {
+    background: rgba(52, 152, 219, 0.3);
+    border-radius: 4px;
+}
+
+.faq-scroll-container::-webkit-scrollbar-thumb:hover {
+    background: rgba(52, 152, 219, 0.5);
+}
+
+/* FAQ 카드 개선 */
+.faq-cards-wrapper {
+    display: flex;
+    gap: 1rem;
+    min-width: max-content;
+    padding: 0.5rem 1rem;
+}
+
+/* Custom scroll hide - 다른 영역용 */
 .custom-scroll-hide {
     scrollbar-width: none; /* Firefox */
     -ms-overflow-style: none; /* IE and Edge */

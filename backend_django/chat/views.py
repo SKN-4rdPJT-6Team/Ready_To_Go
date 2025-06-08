@@ -1,6 +1,7 @@
 import logging
 import json
 import asyncio
+from django.db.models import F
 from django.shortcuts import render
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -143,6 +144,7 @@ def process_message(request):
         )
         
         # RAG 검색 결과 로그
+        logger.info(f"RAG search country: {country}, topic: {topic}")
         logger.info(f"RAG context length: {len(context) if context else 0}")
         logger.info(f"References found: {len(references) if references else 0}")
         
